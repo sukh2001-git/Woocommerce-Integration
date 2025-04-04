@@ -3,9 +3,9 @@
 ![CI workflow](https://github.com/dvdl16/woocommerce_fusion/actions/workflows/ci.yml/badge.svg?branch=version-15)
 [![codecov](https://codecov.io/gh/dvdl16/woocommerce_fusion/graph/badge.svg?token=A5OR5QIOUX)](https://codecov.io/gh/dvdl16/woocommerce_fusion)
 
-WooCommerce connector for ERPNext v15
+WooCommerce connector for OneHash v15
 
-This app allows you to synchronise your ERPNext site with **multiple** WooCommerce websites
+This app allows you to synchronise your OneHash site with **multiple** WooCommerce websites
 
 ### Features
 
@@ -91,4 +91,4 @@ mdbook serve --open
 
 GNU GPL V3
 
-The code is licensed as GNU General Public License (v3) and the copyright is owned by Finfoot Tech (Pty) Ltd and Contributors.
+The code is licensed as GNU General Public License (v3).
