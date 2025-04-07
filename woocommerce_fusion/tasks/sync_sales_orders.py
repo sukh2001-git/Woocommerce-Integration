@@ -599,9 +599,25 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					address = frappe.get_doc("Address", addresses[0].parent)
 					if hasattr(address, 'state') and address.state:
 						if address.state.strip().lower() == "Maharashtra":
-							new_sales_order.taxes_and_charges = "Output GST In-state - O"
+							tax_template_name = "Output GST In-state - O"
 						else:
-							new_sales_order.taxes_and_charges = "Output GST Out-state - O"
+							tax_template_name = "Output GST Out-state - O"
+
+						new_sales_order.taxes_and_charges = tax_template_name
+						
+						if tax_template_name:
+							tax_template = frappe.get_doc("Sales Taxes and Charges Template", tax_template_name)
+							for tax in tax_template.taxes:
+								new_sales_order.append("taxes", {
+									"charge_type": tax.charge_type,
+                                	"account_head": tax.account_head,
+                                	"description": tax.description,
+                                	"rate": tax.rate,
+                                	"included_in_print_rate": tax.included_in_print_rate if hasattr(tax, 'included_in_print_rate') else 0,
+                                	"tax_amount": 0, 
+                                	"tax_amount_after_discount_amount": 0, 
+                                	"total": 0 
+                            	})
 				
 				except Exception as addr_error:
 					frappe.log_error(f"Error accessing address {addresses[0].parent}: {str(addr_error)}", 
