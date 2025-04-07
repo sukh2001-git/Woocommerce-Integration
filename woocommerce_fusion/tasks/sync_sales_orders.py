@@ -581,6 +581,22 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		Customised version of set_items_in_sales_order to allow searching for items linked to
 		multiple WooCommerce sites
 		"""
+		
+		#the given try catch is only for Wol3D , can be removed for now.
+		try:
+			if new_sales_order.customer_address:
+				address = frappe.get_doc("Address", new_sales_order.customer_address)
+				frappe.log_error("address", address)
+				frappe.log_error("address state", address.state)
+				
+				if address.state and address.state.strip().lower() == "Maharashtra":
+					new_sales_order.taxes_and_charges = "Output GST In-state"
+				elif address.state:
+					new_sales_order.taxes_and_charges = "Output GST Out-state"  
+		except Exception as e:
+			error_message = f"Error in Sales Order tax setting: {str(e)}"
+			frappe.log_error(error_message, "Address Tax Setting Error")
+
 		wc_server = frappe.get_cached_doc("WooCommerce Server", new_sales_order.woocommerce_server)
 		if not wc_server.warehouse:
 			frappe.throw(_("Please set Warehouse in WooCommerce Server"))
