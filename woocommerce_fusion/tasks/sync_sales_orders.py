@@ -613,7 +613,7 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
                                 	"account_head": tax.account_head,
                                 	"description": tax.description,
                                 	"rate": tax.rate,
-                                	"included_in_print_rate": tax.included_in_print_rate if hasattr(tax, 'included_in_print_rate') else 0,
+                                	"included_in_print_rate": tax.included_in_print_rate if hasattr(tax, 'included_in_print_rate') else 1,
                                 	"tax_amount": 0, 
                                 	"tax_amount_after_discount_amount": 0, 
                                 	"total": 0 
