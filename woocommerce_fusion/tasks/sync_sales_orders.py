@@ -625,7 +625,7 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					"description": found_item.item_name,
 					"delivery_date": new_sales_order.delivery_date,
 					"qty": item.get("quantity"),
-					"rate": item.get("price")
+					"rate": item.get("price"),
 					# if wc_server.use_actual_tax_type or not tax_template.taxes[0].included_in_print_rate
 					# else get_tax_inc_price_for_woocommerce_line_item(item),
 					"warehouse": wc_server.warehouse,
