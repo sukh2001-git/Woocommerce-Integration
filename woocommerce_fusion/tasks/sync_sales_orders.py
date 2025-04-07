@@ -609,14 +609,14 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 
 				found_item = frappe.get_doc("Item", item_codes[0].parent) if item_codes else None
 
-			# If we are applying a Sales Taxes and Charges Template (as opposed to Actual Tax), then we need to
-			# determine if the item price should include tax or not
-			if not wc_server.use_actual_tax_type:
-				tax_template = frappe.get_cached_doc(
-					"Sales Taxes and Charges Template", wc_server.sales_taxes_and_charges_template
-				)
+			# # If we are applying a Sales Taxes and Charges Template (as opposed to Actual Tax), then we need to
+			# # determine if the item price should include tax or not
+			# if not wc_server.use_actual_tax_type:
+			# 	tax_template = frappe.get_cached_doc(
+			# 		"Sales Taxes and Charges Template", wc_server.sales_taxes_and_charges_template
+			# 	)
 
-			wc_server.sales_taxes_and_charges_template
+			# wc_server.sales_taxes_and_charges_template
 			new_sales_order.append(
 				"items",
 				{
@@ -626,32 +626,32 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					"delivery_date": new_sales_order.delivery_date,
 					"qty": item.get("quantity"),
 					"rate": item.get("price")
-					if wc_server.use_actual_tax_type or not tax_template.taxes[0].included_in_print_rate
-					else get_tax_inc_price_for_woocommerce_line_item(item),
+					# if wc_server.use_actual_tax_type or not tax_template.taxes[0].included_in_print_rate
+					# else get_tax_inc_price_for_woocommerce_line_item(item),
 					"warehouse": wc_server.warehouse,
 					"discount_percentage": 100 if item.get("price") == 0 else 0,
 				},
 			)
 
-			if not wc_server.use_actual_tax_type:
-				new_sales_order.taxes_and_charges = wc_server.sales_taxes_and_charges_template
+		# 	if not wc_server.use_actual_tax_type:
+		# 		new_sales_order.taxes_and_charges = wc_server.sales_taxes_and_charges_template
 
-				# Trigger taxes calculation
-				new_sales_order.set_missing_lead_customer_details()
-			else:
-				ordered_items_tax = item.get("total_tax")
-				add_tax_details(new_sales_order, ordered_items_tax, "Ordered Item tax", wc_server.tax_account)
+		# 		# Trigger taxes calculation
+		# 		new_sales_order.set_missing_lead_customer_details()
+		# 	else:
+		# 		ordered_items_tax = item.get("total_tax")
+		# 		add_tax_details(new_sales_order, ordered_items_tax, "Ordered Item tax", wc_server.tax_account)
 
-		# If a Shipping Rule is added, shipping charges will be determined by the Shipping Rule. If not, then
-		# get it from the WooCommerce Order
-		if not new_sales_order.shipping_rule:
-			add_tax_details(new_sales_order, wc_order.shipping_tax, "Shipping Tax", wc_server.f_n_f_account)
-			add_tax_details(
-				new_sales_order,
-				wc_order.shipping_total,
-				"Shipping Total",
-				wc_server.f_n_f_account,
-			)
+		# # If a Shipping Rule is added, shipping charges will be determined by the Shipping Rule. If not, then
+		# # get it from the WooCommerce Order
+		# if not new_sales_order.shipping_rule:
+		# 	add_tax_details(new_sales_order, wc_order.shipping_tax, "Shipping Tax", wc_server.f_n_f_account)
+		# 	add_tax_details(
+		# 		new_sales_order,
+		# 		wc_order.shipping_total,
+		# 		"Shipping Total",
+		# 		wc_server.f_n_f_account,
+		# 	)
 
 		# Handle scenario where Woo Order has no items, then manually set the total
 		if len(new_sales_order.items) == 0:
