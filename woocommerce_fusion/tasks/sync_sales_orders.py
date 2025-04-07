@@ -584,27 +584,28 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		
 		#the given try catch is only for Wol3D , can be removed for now.
 		try:
-			if not new_sales_order.customer:
-				return
+			addresses = frappe.get_all(
+            	"Dynamic Link",
+            	filters={
+            	    "link_doctype": "Customer",
+            	    "link_name": new_sales_order.customer,
+            	    "parenttype": "Address"
+            	},
+            	fields=["parent"]
+        	)
 			
-			customer = frappe.get_doc("Customer", new_sales_order.customer)
-			frappe.log_error("customer", customer)
-
-			address_name = customer.customer_primary_address
-			frappe.log_error("address_name", address_name)
-			
-			if not address_name:
-				return
-			
-			address = frappe.get_doc("Address", address_name)
-			frappe.log_error("address", address)
-			frappe.log_error("address state", address.state)
-			
-			if hasattr(address, 'state') and address.state:
-				if address.state.strip().lower() == "Maharashtra":
-					new_sales_order.taxes_and_charges = "Output GST In-state"
-				else:
-					new_sales_order.taxes_and_charges = "Output GST Out-state"
+			if addresses:
+				try:
+					address = frappe.get_doc("Address", addresses[0].parent)
+					if hasattr(address, 'state') and address.state:
+						if address.state.strip().lower() == "Maharashtra":
+							new_sales_order.taxes_and_charges = "Output GST In-state"
+						else:
+							new_sales_order.taxes_and_charges = "Output GST Out-state"
+				
+				except Exception as addr_error:
+					frappe.log_error(f"Error accessing address {addresses[0].parent}: {str(addr_error)}", 
+                               "Address Access Error")
                 
 		except Exception as e:
 			frappe.log_error(f"Tax setting error: {str(e)}\n{frappe.get_traceback()}", 
