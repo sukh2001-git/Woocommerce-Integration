@@ -584,18 +584,31 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		
 		#the given try catch is only for Wol3D , can be removed for now.
 		try:
-			frappe.log_error("new_sales_order customer address", new_sales_order.customer_address)
-			address = frappe.get_doc("Address", new_sales_order.customer_address)
+			if not new_sales_order.customer:
+				return
+			
+			customer = frappe.get_doc("Customer", new_sales_order.customer)
+			frappe.log_error("customer", customer)
+
+			address_name = customer.customer_primary_address
+			frappe.log_error("address_name", address_name)
+			
+			if not address_name:
+				return
+			
+			address = frappe.get_doc("Address", address_name)
 			frappe.log_error("address", address)
 			frappe.log_error("address state", address.state)
 			
-			if address.state and address.state.strip().lower() == "Maharashtra":
-				new_sales_order.taxes_and_charges = "Output GST In-state"
-			elif address.state:
-				new_sales_order.taxes_and_charges = "Output GST Out-state"  
+			if hasattr(address, 'state') and address.state:
+				if address.state.strip().lower() == "Maharashtra":
+					new_sales_order.taxes_and_charges = "Output GST In-state"
+				else:
+					new_sales_order.taxes_and_charges = "Output GST Out-state"
+                
 		except Exception as e:
-			error_message = f"Error in Sales Order tax setting: {str(e)}"
-			frappe.log_error(error_message, "Address Tax Setting Error")
+			frappe.log_error(f"Tax setting error: {str(e)}\n{frappe.get_traceback()}", 
+                         "Address Tax Setting Error")
 
 		wc_server = frappe.get_cached_doc("WooCommerce Server", new_sales_order.woocommerce_server)
 		if not wc_server.warehouse:
