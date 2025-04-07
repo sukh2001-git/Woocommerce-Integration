@@ -599,9 +599,9 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					address = frappe.get_doc("Address", addresses[0].parent)
 					if hasattr(address, 'state') and address.state:
 						if address.state.strip().lower() == "Maharashtra":
-							new_sales_order.taxes_and_charges = "Output GST In-state"
+							new_sales_order.taxes_and_charges = "Output GST In-state - O"
 						else:
-							new_sales_order.taxes_and_charges = "Output GST Out-state"
+							new_sales_order.taxes_and_charges = "Output GST Out-state - O"
 				
 				except Exception as addr_error:
 					frappe.log_error(f"Error accessing address {addresses[0].parent}: {str(addr_error)}", 
