@@ -539,6 +539,22 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 
 		if isinstance(vat_id, str) and vat_id.strip():
 			customer.tax_id = vat_id
+		
+		meta_data = wc_order.get("meta_data", None)
+		if meta_data and isinstance(meta_data, list):
+			gst_tin_value = next((item["value"] for item in meta_data if item["key"] == "gst-tin"), None)
+
+			if gst_tin_value:
+				if not customer.meta_data:
+					customer.meta_data = '{}'
+
+				try:
+					existing_meta = json.loads(customer.meta_data)
+				except (TypeError, ValueError):
+					existing_meta = {}
+
+				existing_meta["custom_gst_id"] = gst_tin_value
+				customer.meta_data = json.dumps(existing_meta)
 
 		customer.flags.ignore_mandatory = True
 
