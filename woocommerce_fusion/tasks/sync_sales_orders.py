@@ -868,6 +868,8 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		address.flags.ignore_mandatory = True
 		address.save()
 
+		customer_primary_address = address.name
+
 	def update_address(
 		self, address_name, raw_data: Dict, customer, is_primary_address=0, is_shipping_address=0
 	):
@@ -938,6 +940,8 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 
 		address.flags.ignore_mandatory = True
 		address.save()
+
+		customer_primary_address = address.name
 
 
 def get_list_of_wc_orders(
