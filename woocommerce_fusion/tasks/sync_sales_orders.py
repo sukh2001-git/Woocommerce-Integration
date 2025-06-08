@@ -541,11 +541,18 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 			customer.tax_id = vat_id
 		
 		meta_data = wc_order.get("meta_data", None)
+		gst_tin_value = None
+
 		if meta_data and isinstance(meta_data, list):
-			gst_tin_value = next((item["value"] for item in meta_data if item["key"] == "gst-tin"), None)
+			for item in meta_data:
+				if isinstance(item, dict) and item.get("key") == "gst-tin":
+					gst_tin_value = item.get("value")
+					break
+
+				frappe.log_error("gst found", gst_tin_value)
 
 			if gst_tin_value:
-				if not customer.meta_data:
+				if not hasattr(customer, 'meta_data') or not customer.meta_data:
 					customer.meta_data = '{}'
 
 				try:
@@ -555,6 +562,14 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 
 				existing_meta["custom_gst_id"] = gst_tin_value
 				customer.meta_data = json.dumps(existing_meta)
+
+				if hasattr(customer, 'custom_gst_id'):
+					customer.custom_gst_id = str(gst_tin_value).strip()
+
+				frappe.log_error(
+					"GST Save Debug", 
+					f"Setting meta_data: {customer.meta_data}, GST Value: {gst_tin_value}"
+				)
 
 		customer.flags.ignore_mandatory = True
 
