@@ -886,6 +886,7 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		address.append("links", {"link_doctype": "Customer", "link_name": customer.name})
 
 		address.flags.ignore_mandatory = True
+		address.flags.ignore_permissions = True
 		address.save()
 
 		customer_primary_address = address.name
