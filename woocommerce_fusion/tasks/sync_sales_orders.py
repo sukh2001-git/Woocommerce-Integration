@@ -454,9 +454,7 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 
 		# Set the custom fields from WooCommerce data
 		new_sales_order.custom_discounted_amount = float(wc_order.discount_total) if wc_order.discount_total else 0
-		frappe.log_error("Discount Total", new_sales_order.custom_discounted_amount)
 		new_sales_order.custom_shipping_total = float(wc_order.shipping_total) if wc_order.shipping_total else 0
-		frappe.log_error("Shipping Total", new_sales_order.custom_shipping_total)
 
 		# Initialize COD total
 		cod_total = 0
@@ -473,7 +471,6 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 				frappe.log_error(f"Error processing fee_lines for order {wc_order.id}: {str(e)}")
 
 		new_sales_order.custom_cod_total = cod_total
-		frappe.log_error("COD Total", new_sales_order.custom_cod_total)
 
 		if (
 			(wc_server.enable_shipping_methods_sync)
@@ -507,7 +504,6 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 			custom_discounted_amount = float(new_sales_order.custom_discounted_amount or 0)
 				
 			new_sales_order.custom_total_amount = grand_total + custom_cod_total + custom_shipping_total - custom_discounted_amount
-			frappe.log_error("Custom Total Amount", new_sales_order.custom_total_amount)
 		except Exception as e:
 			frappe.log_error(f"Error calculating custom_total_amount for order {wc_order.id}: {str(e)}")
 			# Fallback calculation if there's any issue
@@ -578,7 +574,6 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 			customer.tax_id = vat_id
 		
 		meta_data = wc_order.get("meta_data", None)
-		frappe.log_error("Meta Data", meta_data)
 		gst_tin_value = None
 
 		if meta_data:
