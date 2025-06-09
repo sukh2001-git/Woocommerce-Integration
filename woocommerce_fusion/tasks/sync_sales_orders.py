@@ -587,7 +587,6 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					for item in meta_data_list:
 						if isinstance(item, dict) and item.get("key") == "gst-tin":
 							gst_tin_value = item.get("value")
-							frappe.log_error("GST Found", f"GST Value: {gst_tin_value}")
 							break
 			except (json.JSONDecodeError, TypeError) as e:
 				frappe.log_error("GST Parse Error", f"Error parsing meta_data: {str(e)}")
@@ -595,7 +594,6 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 			if gst_tin_value and gst_tin_value.strip():
 				if hasattr(customer, 'custom_gst_id'):
 					customer.custom_gst_id = str(gst_tin_value).strip()
-					frappe.log_error("GST Saved", f"GST ID set to: {customer.custom_gst_id}")
 				
 				if not hasattr(customer, 'meta_data') or not customer.meta_data:
 					customer.meta_data = '{}'
