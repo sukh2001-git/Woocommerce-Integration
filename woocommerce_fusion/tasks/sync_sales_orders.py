@@ -960,6 +960,7 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		address.is_shipping_address = is_shipping_address
 
 		address.flags.ignore_mandatory = True
+		address.flags.ignore_permissions = True
 		address.save()
 
 		customer_primary_address = address.name
