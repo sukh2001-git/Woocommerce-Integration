@@ -541,35 +541,40 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 			customer.tax_id = vat_id
 		
 		meta_data = wc_order.get("meta_data", None)
+		frappe.log_error("Meta Data", meta_data)
 		gst_tin_value = None
 
-		if meta_data and isinstance(meta_data, list):
-			for item in meta_data:
-				if isinstance(item, dict) and item.get("key") == "gst-tin":
-					gst_tin_value = item.get("value")
-					break
+		if meta_data:
+			try:
+				if isinstance(meta_data, str):
+					meta_data_list = json.loads(meta_data)
+				else:
+					meta_data_list = meta_data
+				
+				if isinstance(meta_data_list, list):
+					for item in meta_data_list:
+						if isinstance(item, dict) and item.get("key") == "gst-tin":
+							gst_tin_value = item.get("value")
+							frappe.log_error("GST Found", f"GST Value: {gst_tin_value}")
+							break
+			except (json.JSONDecodeError, TypeError) as e:
+				frappe.log_error("GST Parse Error", f"Error parsing meta_data: {str(e)}")
 
-				frappe.log_error("gst found", gst_tin_value)
-
-			if gst_tin_value:
+			if gst_tin_value and gst_tin_value.strip():
+				if hasattr(customer, 'custom_gst_id'):
+					customer.custom_gst_id = str(gst_tin_value).strip()
+					frappe.log_error("GST Saved", f"GST ID set to: {customer.custom_gst_id}")
+				
 				if not hasattr(customer, 'meta_data') or not customer.meta_data:
 					customer.meta_data = '{}'
-
+				
 				try:
 					existing_meta = json.loads(customer.meta_data)
 				except (TypeError, ValueError):
 					existing_meta = {}
-
+				
 				existing_meta["custom_gst_id"] = gst_tin_value
 				customer.meta_data = json.dumps(existing_meta)
-
-				if hasattr(customer, 'custom_gst_id'):
-					customer.custom_gst_id = str(gst_tin_value).strip()
-
-				frappe.log_error(
-					"GST Save Debug", 
-					f"Setting meta_data: {customer.meta_data}, GST Value: {gst_tin_value}"
-				)
 
 		customer.flags.ignore_mandatory = True
 
