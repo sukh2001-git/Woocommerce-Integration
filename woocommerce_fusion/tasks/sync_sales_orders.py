@@ -667,9 +667,9 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					address = frappe.get_doc("Address", addresses[0].parent)
 					if hasattr(address, 'state') and address.state:
 						if address.state.strip().lower() == "Maharashtra":
-							tax_template_name = "Output GST In-state - O"
+							tax_template_name = "Output GST In-state - WIL"
 						else:
-							tax_template_name = "Output GST Out-state - O"
+							tax_template_name = "Output GST Out-state - WIL"
 
 						new_sales_order.taxes_and_charges = tax_template_name
 						
