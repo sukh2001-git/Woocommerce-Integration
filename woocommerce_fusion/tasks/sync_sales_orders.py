@@ -501,11 +501,11 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		new_sales_order.reload()
 
 		try:
-			grand_total = new_sales_order.grand_total or 0
-			custom_cod_total = new_sales_order.custom_cod_total or 0
-			custom_shipping_total = new_sales_order.custom_shipping_total or 0
-			custom_discounted_amount = new_sales_order.custom_discounted_amount or 0
-			
+			grand_total = float(new_sales_order.grand_total or 0)
+			custom_cod_total = float(new_sales_order.custom_cod_total or 0)
+			custom_shipping_total = float(new_sales_order.custom_shipping_total or 0)
+			custom_discounted_amount = float(new_sales_order.custom_discounted_amount or 0)
+				
 			new_sales_order.custom_total_amount = grand_total + custom_cod_total + custom_shipping_total - custom_discounted_amount
 			frappe.log_error("Custom Total Amount", new_sales_order.custom_total_amount)
 		except Exception as e:
