@@ -100,7 +100,6 @@
    "fieldname": "tax_account",
    "fieldtype": "Link",
    "label": "Tax Account",
-   "mandatory_depends_on": "eval: doc.use_actual_tax_type;",
    "options": "Account"
   },
   {
@@ -187,7 +186,6 @@
    "fieldname": "sales_taxes_and_charges_template",
    "fieldtype": "Link",
    "label": "Sales Taxes and Charges Template",
-   "mandatory_depends_on": "eval: !doc.use_actual_tax_type;",
    "options": "Sales Taxes and Charges Template"
   },
   {
