@@ -452,6 +452,29 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		new_sales_order.company = wc_server.company
 		new_sales_order.currency = wc_order.currency
 
+		# Set the custom fields from WooCommerce data
+		new_sales_order.custom_discounted_amount = float(wc_order.discount_total) if wc_order.discount_total else 0
+		frappe.log_error("Discount Total", new_sales_order.custom_discounted_amount)
+		new_sales_order.custom_shipping_total = float(wc_order.shipping_total) if wc_order.shipping_total else 0
+		frappe.log_error("Shipping Total", new_sales_order.custom_shipping_total)
+
+		# Initialize COD total
+		cod_total = 0
+
+		# Handling COD fee from fee_lines
+		if hasattr(wc_order, 'fee_lines') and wc_order.fee_lines:
+			try:
+				fee_lines = json.loads(wc_order.fee_lines) if isinstance(wc_order.fee_lines, str) else wc_order.fee_lines
+				for fee in fee_lines:
+					# You can add specific check for COD Fee name if needed
+					if fee.get("name") == "COD Fee" or "COD" in fee.get("name", "").upper():
+						cod_total += float(fee.get("total", 0))
+			except (json.JSONDecodeError, ValueError, TypeError) as e:
+				frappe.log_error(f"Error processing fee_lines for order {wc_order.id}: {str(e)}")
+
+		new_sales_order.custom_cod_total = cod_total
+		frappe.log_error("COD Total", new_sales_order.custom_cod_total)
+
 		if (
 			(wc_server.enable_shipping_methods_sync)
 			and (shipping_lines := json.loads(wc_order.shipping_lines))
@@ -476,6 +499,20 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 			new_sales_order.submit()
 
 		new_sales_order.reload()
+
+		try:
+			grand_total = new_sales_order.grand_total or 0
+			custom_cod_total = new_sales_order.custom_cod_total or 0
+			custom_shipping_total = new_sales_order.custom_shipping_total or 0
+			custom_discounted_amount = new_sales_order.custom_discounted_amount or 0
+			
+			new_sales_order.custom_total_amount = grand_total + custom_cod_total + custom_shipping_total - custom_discounted_amount
+			frappe.log_error("Custom Total Amount", new_sales_order.custom_total_amount)
+		except Exception as e:
+			frappe.log_error(f"Error calculating custom_total_amount for order {wc_order.id}: {str(e)}")
+			# Fallback calculation if there's any issue
+			new_sales_order.custom_total_amount = new_sales_order.grand_total or 0
+
 		self.create_and_link_payment_entry(wc_order, new_sales_order)
 		new_sales_order.save(ignore_permissions=True)
 
