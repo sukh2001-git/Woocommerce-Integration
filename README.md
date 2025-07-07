@@ -26,7 +26,7 @@ User documentation is hosted at [woocommerce-fusion-docs.finfoot.tech](https://w
 3. Once ERPNext is installed, add the woocommerce_fusion app to your bench by running
 
 	```sh
-	$ bench get-app https://github.com/dvdl16/woocommerce_fusion
+	$ bench get-app https://github.com/sukh2001-git/Woocommerce-Integration.git
 	```
 4. After that, you can install the woocommerce_fusion app on the required site by running
 	```sh
