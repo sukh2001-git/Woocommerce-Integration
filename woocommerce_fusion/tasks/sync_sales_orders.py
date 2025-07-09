@@ -665,30 +665,29 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					address = frappe.get_doc("Address", addresses[0].parent)
 					company_name = new_sales_order.company
 
-					if company_name == "WOL3D India Limited":
 
-						if hasattr(address, 'state') and address.state:
-							if address.state.strip().lower() == "maharashtra":
-								tax_template_name = "Output GST In-state - WIL"
-							else:
-								tax_template_name = "Output GST Out-state - WIL"
+					if hasattr(address, 'state') and address.state:
+						if address.state.strip().lower() == "maharashtra":
+							tax_template_name = "Output GST In-state - WIL"
+						else:
+							tax_template_name = "Output GST Out-state - WIL"
 
-							new_sales_order.taxes_and_charges = tax_template_name
-							
-							if tax_template_name:
-								tax_template = frappe.get_doc("Sales Taxes and Charges Template", tax_template_name)
-								for tax in tax_template.taxes:
-									new_sales_order.append("taxes", {
-										"charge_type": tax.charge_type,
-										"account_head": tax.account_head,
-										"description": tax.description,
-										"rate": tax.rate,
-										# "included_in_print_rate": tax.included_in_print_rate if hasattr(tax, 'included_in_print_rate') else 0,
-										"included_in_print_rate": 1,
-										"tax_amount": 0, 
-										"tax_amount_after_discount_amount": 0, 
-										"total": 0 
-									})
+						new_sales_order.taxes_and_charges = tax_template_name
+						
+						if tax_template_name:
+							tax_template = frappe.get_doc("Sales Taxes and Charges Template", tax_template_name)
+							for tax in tax_template.taxes:
+								new_sales_order.append("taxes", {
+									"charge_type": tax.charge_type,
+									"account_head": tax.account_head,
+									"description": tax.description,
+									"rate": tax.rate,
+									# "included_in_print_rate": tax.included_in_print_rate if hasattr(tax, 'included_in_print_rate') else 0,
+									"included_in_print_rate": 1,
+									"tax_amount": 0, 
+									"tax_amount_after_discount_amount": 0, 
+									"total": 0 
+								})
 
 					# elif company_name == "Akshobhveda":
 						# if hasattr(address, 'state') and address.state:
@@ -713,8 +712,6 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 						# 				"tax_amount_after_discount_amount": 0, 
 						# 				"total": 0 
 						# 			})
-					else:
-						pass
 				
 				except Exception as addr_error:
 					frappe.log_error(f"Error accessing address {addresses[0].parent}: {str(addr_error)}", 
