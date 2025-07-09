@@ -668,7 +668,7 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 					if company_name == "WOL3D India Limited":
 
 						if hasattr(address, 'state') and address.state:
-							if address.state.strip().lower() == "Maharashtra":
+							if address.state.strip().lower() == "maharashtra":
 								tax_template_name = "Output GST In-state - WIL"
 							else:
 								tax_template_name = "Output GST Out-state - WIL"
