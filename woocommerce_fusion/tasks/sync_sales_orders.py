@@ -648,21 +648,23 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 		multiple WooCommerce sites
 		"""
 		
-		# the given try catch is only for Wol3D , can be removed for now.
+		#the given try catch is only for Wol3D , can be removed for now.
 		try:
 			addresses = frappe.get_all(
-				"Dynamic Link",
-				filters={
-					"link_doctype": "Customer",
-					"link_name": new_sales_order.customer,
-					"parenttype": "Address"
-				},
-				fields=["parent"]
-			)
+            	"Dynamic Link",
+            	filters={
+            	    "link_doctype": "Customer",
+            	    "link_name": new_sales_order.customer,
+            	    "parenttype": "Address"
+            	},
+            	fields=["parent"]
+        	)
 			
 			if addresses:
 				try:
 					address = frappe.get_doc("Address", addresses[0].parent)
+					company_name = new_sales_order.company
+
 
 					if hasattr(address, 'state') and address.state:
 						if address.state.strip().lower() == "maharashtra":
@@ -680,23 +682,26 @@ class SynchroniseSalesOrder(SynchroniseWooCommerce):
 									"account_head": tax.account_head,
 									"description": tax.description,
 									"rate": tax.rate,
+									# "included_in_print_rate": tax.included_in_print_rate if hasattr(tax, 'included_in_print_rate') else 0,
 									"included_in_print_rate": 1,
 									"tax_amount": 0, 
 									"tax_amount_after_discount_amount": 0, 
 									"total": 0 
 								})
+						else:
+							pass
 				
 				except Exception as addr_error:
 					frappe.log_error(f"Error accessing address {addresses[0].parent}: {str(addr_error)}", 
-								"Address Access Error")
-					
+                               "Address Access Error")
+                
 		except Exception as e:
 			frappe.log_error(f"Tax setting error: {str(e)}\n{frappe.get_traceback()}", 
-							"Address Tax Setting Error")
+                         "Address Tax Setting Error")
 
-			wc_server = frappe.get_cached_doc("WooCommerce Server", new_sales_order.woocommerce_server)
-			if not wc_server.warehouse:
-				frappe.throw(_("Please set Warehouse in WooCommerce Server"))
+		wc_server = frappe.get_cached_doc("WooCommerce Server", new_sales_order.woocommerce_server)
+		if not wc_server.warehouse:
+			frappe.throw(_("Please set Warehouse in WooCommerce Server"))
 
 		for item in json.loads(wc_order.line_items):
 			woocomm_item_id = item.get("variation_id") or item.get("product_id")
